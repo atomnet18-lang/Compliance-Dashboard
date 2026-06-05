@@ -120,11 +120,8 @@
   </div>
 
   <div class="toolbar">
-    <button class="btn" onclick="exportJSON()">⬇ บันทึก data.json</button>
-    <button class="btn ghost" onclick="document.getElementById('imp').click()">⬆ โหลด data.json</button>
-    <input type="file" id="imp" accept="application/json" style="display:none" onchange="importJSON(event)">
-    <button class="btn ghost" onclick="resetAll()">รีเซ็ตสถานะ</button>
-    <span class="hint">คลิกที่ช่องเดือนในแถบกิจกรรมเพื่อกำหนดช่วงเวลาและสถานะ</span>
+    <button class="btn" onclick="loadData()">⟳ รีเฟรชข้อมูล</button>
+    <span class="hint">หน้านี้เป็นมุมมองอ่านอย่างเดียว · ข้อมูลมาจาก SharePoint List ผ่าน data.json — ผู้ปฏิบัติงานกรอกใน SharePoint ไม่ต้องแก้ที่นี่</span>
   </div>
 
   <div class="gantt"><div class="gantt-scroll">
