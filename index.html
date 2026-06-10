@@ -69,31 +69,35 @@
   tr.step td{background:var(--mea-navy);color:#fff;font-weight:700;font-size:13px;padding:8px 16px;position:sticky;left:0}
   tr.step td.spacer{position:static;background:var(--mea-navy)}
   .cell{height:30px;position:relative;min-width:56px;cursor:default}
-  /* read-only */
+  .cell.clickable{cursor:pointer}
+  .cell.clickable:hover{background:#eef3fb}
   .seg{position:absolute;top:7px;bottom:7px;left:2px;right:2px;border-radius:5px;background:var(--none)}
   .seg.prog{background:var(--prog)} .seg.done{background:var(--done)}
   .seg.s-start{left:5px} .seg.s-end{right:5px}
-  .rowctl{display:flex;gap:4px;align-items:center;justify-content:flex-end;padding-right:8px}
-  select.mini,input.mini{font-family:inherit;font-size:11px;border:1px solid var(--line);border-radius:6px;padding:3px 5px;color:var(--ink);background:#fff}
+  /* จุดบอกว่ามีรายละเอียดงานเดือนนี้ */
+  .seg.has-detail::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.18)}
 
   footer{margin-top:26px;font-size:12px;color:var(--muted);text-align:center}
 
   /* modal */
-  .ov{position:fixed;inset:0;background:rgba(2,39,94,.4);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+  .ov{position:fixed;inset:0;background:rgba(2,39,94,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
   .ov.on{display:flex}
-  .mod{background:#fff;border-radius:14px;max-width:460px;width:100%;padding:22px;box-shadow:0 18px 50px rgba(0,0,0,.25)}
-  .mod h3{font-size:15px;color:var(--mea-navy);margin-bottom:4px}
-  .mod .nm{font-size:12.5px;color:var(--muted);margin-bottom:16px}
-  .fld{margin-bottom:13px}
-  .fld label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
-  .fld select,.fld input{width:100%;font-family:inherit;font-size:13px;padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff}
-  .seg-status{display:flex;gap:8px}
-  .seg-status label{flex:1;text-align:center;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12.5px;cursor:default}
-  .seg-status input{display:none}
-  .seg-status label.on{border-color:var(--mea-navy);background:var(--mea-navy-l);font-weight:600}
-  .mod .row{display:flex;gap:10px}
-  .mod .row .fld{flex:1}
-  .mod-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
+  .mod{background:#fff;border-radius:14px;max-width:480px;width:100%;padding:0;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.28)}
+  .mod-head{background:linear-gradient(120deg,var(--mea-navy),var(--mea-navy-d));color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start}
+  .mod-month{font-size:19px;font-weight:700}
+  .mod-sub{font-size:12px;color:#bcccea;margin-top:2px}
+  .mod .x{background:transparent;border:0;color:#fff;font-size:24px;line-height:1;cursor:pointer;padding:0 2px;opacity:.8}
+  .mod .x:hover{opacity:1}
+  .mod-row{display:flex;gap:10px;padding:10px 20px 0;font-size:13px}
+  .mod-row .mk{min-width:82px;color:var(--muted);font-weight:600}
+  .mod-row span:last-child{flex:1}
+  .badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600}
+  .badge.none{background:#eef1f6;color:#5e6b80}
+  .badge.prog{background:var(--prog-l);color:var(--mea-gold-d)}
+  .badge.done{background:var(--done-l);color:#197a44}
+  .mod-detail-label{padding:14px 20px 4px;font-size:12.5px;font-weight:700;color:var(--mea-navy)}
+  .mod-detail{margin:0 20px 22px;padding:13px 15px;background:var(--mea-navy-l);border-radius:10px;font-size:13.5px;line-height:1.6;white-space:pre-wrap;min-height:48px}
+  .mod-detail.empty{color:var(--muted);font-style:italic;background:#f6f7f9}
 
   @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
 </style>
@@ -121,7 +125,7 @@
 
   <div class="toolbar">
     <button class="btn" onclick="loadData()">⟳ รีเฟรชข้อมูล</button>
-    <span class="hint">หน้านี้เป็นมุมมองอ่านอย่างเดียว · ข้อมูลมาจาก SharePoint List ผ่าน data.json — ผู้ปฏิบัติงานกรอกใน SharePoint ไม่ต้องแก้ที่นี่</span>
+    <span class="hint">คลิกที่แถบสีในตารางเพื่อดูรายละเอียดงานรายเดือน · จุดสีขาวบนแถบ = มีรายละเอียดบันทึกไว้ · ข้อมูลมาจาก SharePoint List</span>
   </div>
 
   <div class="gantt"><div class="gantt-scroll">
@@ -132,6 +136,25 @@
   </div></div>
 
   <footer id="foot">จัดทำโดยงานด้าน Compliance · ฝ่ายบริหารความเสี่ยงองค์กร (ฝบส.) การไฟฟ้านครหลวง</footer>
+</div>
+
+<!-- detail modal (read-only) -->
+<div class="ov" id="ov">
+  <div class="mod">
+    <div class="mod-head">
+      <div>
+        <div class="mod-month" id="d-month">—</div>
+        <div class="mod-sub">รายละเอียดงานประจำเดือน</div>
+      </div>
+      <button class="x" onclick="closeMod()" aria-label="ปิด">×</button>
+    </div>
+    <div class="mod-row"><span class="mk">กิจกรรม</span><span id="d-act">—</span></div>
+    <div class="mod-row"><span class="mk">ผู้รับผิดชอบ</span><span id="d-resp">—</span></div>
+    <div class="mod-row"><span class="mk">ช่วงเวลา</span><span id="d-range">—</span></div>
+    <div class="mod-row"><span class="mk">สถานะ</span><span class="badge none" id="d-status">—</span></div>
+    <div class="mod-detail-label">รายละเอียด</div>
+    <div class="mod-detail" id="d-detail">—</div>
+  </div>
 </div>
 
 
@@ -148,8 +171,6 @@ async function loadData(){
       '<tr><td style="padding:20px;color:#d9534f">โหลด data.json ไม่สำเร็จ — หากเปิดไฟล์ตรงๆ ในเครื่อง เบราว์เซอร์จะบล็อก (CORS) ให้รันผ่านเซิร์ฟเวอร์: python -m http.server 8000 หรือเปิดผ่าน GitHub Pages</td></tr>';
   }
 }
-let edit = null; // {si, ai}
-
 function isActivity(a){ return a.indent===0; } // main numbered activity (x.x) counts toward progress
 
 function render(){
@@ -171,14 +192,18 @@ function render(){
     s.acts.forEach((a,ai)=>{
       const subcls = a.indent? 'sub':'';
       b+=`<tr><td class="task ${subcls}">${a.name}</td><td class="resp">${a.resp||''}</td>`;
+      const det = a.details || {};
       for(let i=0;i<M.length;i++){
         let seg='';
-        if(a.start!==null && a.end!==null && i>=a.start && i<=a.end){
+        const inRange = a.start!==null && a.end!==null && i>=a.start && i<=a.end;
+        if(inRange){
           const cls = a.status==='done'?'done':(a.status==='prog'?'prog':'');
           const sc = (i===a.start?'s-start':'')+' '+(i===a.end?'s-end':'');
-          seg=`<div class="seg ${cls} ${sc}"></div>`;
+          const hasDetail = det[i]!==undefined;
+          seg=`<div class="seg ${cls} ${sc} ${hasDetail?'has-detail':''}"></div>`;
         }
-        b+=`<td class="cell" >${seg}</td>`;
+        const clickable = inRange ? `class="cell clickable" onclick="openDetail(${si},${ai},${i})"` : 'class="cell"';
+        b+=`<td ${clickable}>${seg}</td>`;
       }
       b+='</tr>';
     });
@@ -211,60 +236,31 @@ function renderKPI(){
   document.getElementById('ov-p').style.width = pctProg+'%';
 }
 
-// modal
-function openMod(si,ai){
-  edit={si,ai};
+// ---- detail modal (read-only) ----
+const STATUS_TH = {none:'ยังไม่เริ่ม', prog:'กำลังดำเนินการ', done:'เสร็จสิ้น'};
+function openDetail(si,ai,mi){
   const a=DATA.steps[si].acts[ai];
-  document.getElementById('m-name').textContent=a.name;
-  const ss=document.getElementById('m-start'), es=document.getElementById('m-end');
-  ss.innerHTML=es.innerHTML=DATA.months.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
-  ss.value = a.start!==null?a.start:0;
-  es.value = a.end!==null?a.end:0;
-  document.querySelectorAll('#m-status input').forEach(r=>{ r.checked=(r.value===(a.status||'none')); });
-  syncStatusUI();
+  const M=DATA.months;
+  document.getElementById('d-month').textContent = M[mi];
+  document.getElementById('d-act').textContent = a.name;
+  document.getElementById('d-resp').textContent = a.resp || '—';
+  const stt=a.status||'none';
+  const badge=document.getElementById('d-status');
+  badge.textContent = STATUS_TH[stt];
+  badge.className = 'badge '+stt;
+  const det = (a.details && a.details[mi]!==undefined) ? a.details[mi] : null;
+  const body=document.getElementById('d-detail');
+  if(det){ body.textContent = det; body.classList.remove('empty'); }
+  else { body.textContent = 'ยังไม่มีรายละเอียดงานสำหรับเดือนนี้ (กรอกได้ในคอลัมน์ MonthlyDetail ของ SharePoint List)'; body.classList.add('empty'); }
+  // ช่วงเวลาเต็มของกิจกรรม
+  document.getElementById('d-range').textContent =
+    (a.start!==null) ? `${M[a.start]} – ${M[a.end]}` : '—';
   document.getElementById('ov').classList.add('on');
 }
-function syncStatusUI(){
-  document.querySelectorAll('#m-status label').forEach(l=>{
-    l.classList.toggle('on', l.querySelector('input').checked);
-  });
-}
-document.getElementById('m-status').addEventListener('change',syncStatusUI);
-function closeMod(){document.getElementById('ov').classList.remove('on');edit=null;}
-function saveMod(){
-  if(!edit)return;
-  const a=DATA.steps[edit.si].acts[edit.ai];
-  let s=+document.getElementById('m-start').value, e=+document.getElementById('m-end').value;
-  if(e<s){const t=s;s=e;e=t;}
-  a.start=s; a.end=e;
-  a.status=document.querySelector('#m-status input:checked').value;
-  closeMod(); render();
-}
-function clearSeg(){
-  if(!edit)return;
-  const a=DATA.steps[edit.si].acts[edit.ai];
-  a.start=null;a.end=null;a.status='none';
-  closeMod(); render();
-}
+function closeMod(){document.getElementById('ov').classList.remove('on');}
+document.getElementById('ov').addEventListener('click',e=>{if(e.target.id==='ov')closeMod();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMod();});
 
-
-function exportJSON(){
-  DATA.updated = new Date().toLocaleDateString('th-TH');
-  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
-  const u=URL.createObjectURL(blob);const a=document.createElement('a');
-  a.href=u;a.download='data.json';a.click();URL.revokeObjectURL(u);
-}
-function importJSON(ev){
-  const f=ev.target.files[0]; if(!f)return;
-  const r=new FileReader();
-  r.onload=()=>{try{DATA=JSON.parse(r.result);render();}catch(e){alert('ไฟล์ไม่ถูกต้อง');}};
-  r.readAsText(f);
-}
-function resetAll(){
-  if(!confirm('ล้างสถานะและช่วงเวลาทั้งหมด?'))return;
-  DATA.steps.forEach(s=>s.acts.forEach(a=>{a.start=null;a.end=null;a.status='none';}));
-  render();
-}
 loadData();
 </script>
 </body>
