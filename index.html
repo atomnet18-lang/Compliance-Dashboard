@@ -68,6 +68,12 @@
   td.resp{padding:6px 8px;color:var(--muted);font-size:11.5px;border-right:1px solid var(--line);white-space:nowrap}
   tr.step td{background:var(--mea-navy);color:#fff;font-weight:700;font-size:13px;padding:8px 16px;position:sticky;left:0}
   tr.step td.spacer{position:static;background:var(--mea-navy)}
+  tr.step{cursor:pointer}
+  tr.step:hover td{background:var(--mea-navy-d)}
+  tr.step:hover td.spacer{background:var(--mea-navy-d)}
+  .caret{display:inline-block;width:14px;margin-right:4px;transition:transform .15s;font-size:11px}
+  tr.step.open .caret{transform:rotate(90deg)}
+  tr.act-hidden{display:none}
   .cell{height:30px;position:relative;min-width:56px;cursor:default}
   .cell.clickable{cursor:pointer}
   .cell.clickable:hover{background:#eef3fb}
@@ -125,7 +131,9 @@
 
   <div class="toolbar">
     <button class="btn" onclick="loadData()">⟳ รีเฟรชข้อมูล</button>
-    <span class="hint">คลิกที่แถบสีในตารางเพื่อดูรายละเอียดงานรายเดือน · จุดสีขาวบนแถบ = มีรายละเอียดบันทึกไว้ · ข้อมูลมาจาก SharePoint List</span>
+    <button class="btn ghost" onclick="expandAll()">▼ ขยายทั้งหมด</button>
+    <button class="btn ghost" onclick="collapseAll()">▶ ย่อทั้งหมด</button>
+    <span class="hint">คลิกหัวข้อ "ขั้นที่..." เพื่อย่อ/ขยายกิจกรรมย่อย · คลิกแถบสีเพื่อดูรายละเอียดงานรายเดือน · จุดสีขาวบนแถบ = มีรายละเอียดบันทึกไว้</span>
   </div>
 
   <div class="gantt"><div class="gantt-scroll">
@@ -188,10 +196,10 @@ function render(){
   // body
   let b='';
   DATA.steps.forEach((s,si)=>{
-    b+=`<tr class="step"><td>ขั้นที่ ${s.no} · ${s.title}</td><td class="spacer"></td>`+ M.map(()=>'<td class="spacer" style="background:var(--mea-navy)"></td>').join('')+'</tr>';
+    b+=`<tr class="step" data-step="${si}" onclick="toggleStep(${si})"><td><span class="caret">▶</span>ขั้นที่ ${s.no} · ${s.title} <span style="font-weight:400;opacity:.75">(${s.acts.length})</span></td><td class="spacer"></td>`+ M.map(()=>'<td class="spacer" style="background:var(--mea-navy)"></td>').join('')+'</tr>';
     s.acts.forEach((a,ai)=>{
       const subcls = a.indent? 'sub':'';
-      b+=`<tr><td class="task ${subcls}">${a.name}</td><td class="resp">${a.resp||''}</td>`;
+      b+=`<tr class="act-row act-hidden" data-step="${si}"><td class="task ${subcls}">${a.name}</td><td class="resp">${a.resp||''}</td>`;
       const det = a.details || {};
       for(let i=0;i<M.length;i++){
         let seg='';
@@ -256,6 +264,21 @@ function openDetail(si,ai,mi){
   document.getElementById('d-range').textContent =
     (a.start!==null) ? `${M[a.start]} – ${M[a.end]}` : '—';
   document.getElementById('ov').classList.add('on');
+}
+// ---- ย่อ/ขยายหัวข้อขั้นตอน ----
+function toggleStep(si){
+  const step=document.querySelector(`tr.step[data-step="${si}"]`);
+  const open=step.classList.toggle('open');
+  document.querySelectorAll(`tr.act-row[data-step="${si}"]`)
+    .forEach(r=>r.classList.toggle('act-hidden',!open));
+}
+function expandAll(){
+  document.querySelectorAll('tr.step').forEach(s=>s.classList.add('open'));
+  document.querySelectorAll('tr.act-row').forEach(r=>r.classList.remove('act-hidden'));
+}
+function collapseAll(){
+  document.querySelectorAll('tr.step').forEach(s=>s.classList.remove('open'));
+  document.querySelectorAll('tr.act-row').forEach(r=>r.classList.add('act-hidden'));
 }
 function closeMod(){document.getElementById('ov').classList.remove('on');}
 document.getElementById('ov').addEventListener('click',e=>{if(e.target.id==='ov')closeMod();});
