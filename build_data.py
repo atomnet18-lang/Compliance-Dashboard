@@ -20,8 +20,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 XLSX = os.path.join(HERE, "CP_2569_บันทึกผลจริง_template.xlsx")
 SHEET = "บันทึกผล"
 OUT  = os.path.join(HERE, "data.json")
-UPDATED   = "20/06/2569"
-CUR_MONTH = 5
+import datetime as _dt
+_t=_dt.date.today()
+UPDATED   = "%02d/%02d/%d" % (_t.day, _t.month, _t.year+543)  # วันที่แปลงไฟล์ (อัตโนมัติ)
+CUR_MONTH = None   # None = เลือกเดือนล่าสุดที่มีข้อมูลผลจริงให้อัตโนมัติ
 
 MONTHS = ['ม.ค.69','ก.พ.69','มี.ค.69','เม.ย.69','พ.ค.69','มิ.ย.69','ก.ค.69','ส.ค.69',
           'ก.ย.69','ต.ค.69','พ.ย.69','ธ.ค.69','ม.ค.70','ก.พ.70','มี.ค.70']
@@ -136,7 +138,15 @@ def main():
         p["cum"]=[round(sum(x["t"][i]*x["w"] for x in p["acts"])/tw,1) for i in range(N)]
         p["budget"]="%d กิจกรรม"%len(p["acts"])
 
-    out={"updated":UPDATED,"curMonth":CUR_MONTH,
+    cur=CUR_MONTH
+    if cur is None:
+        last=-1
+        for p in plans.values():
+            for a in p["acts"]:
+                for i,v in enumerate(a["a"]):
+                    if v and v>0 and i>last: last=i
+        cur=last if last>=0 else 0
+    out={"updated":UPDATED,"curMonth":cur,
          "source":"งานด้าน Compliance · ฝ่ายบริหารความเสี่ยงองค์กร (ฝบส.) การไฟฟ้านครหลวง",
          "title":"แผนการกำกับดูแลการปฏิบัติตามกฎ ระเบียบ (Compliance) ประจำปี 2569",
          "months":MONTHS,"plans":{k:plans[k] for k in order}}

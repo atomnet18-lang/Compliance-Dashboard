@@ -89,6 +89,14 @@
   .err{text-align:center;padding:40px;color:var(--bad);font-size:14px}
   footer{text-align:center;color:var(--muted);font-size:11.5px;padding:18px}
   @media(max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+  /* late card */
+  .latecard{border-left:4px solid var(--bad)}
+  .latelist{list-style:none;margin:6px 0 0;padding:0}
+  .latelist li{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:9px 13px;border:1px solid #f3c7c4;background:#fdf2f1;border-radius:9px;margin-bottom:8px;font-size:13px}
+  .latelist .lt-name{color:var(--mea-navy);font-weight:600}
+  .latelist .lt-sub{color:var(--muted);font-weight:400;font-size:11.5px}
+  .latelist .lt-meta{color:var(--bad);font-weight:700;white-space:nowrap;font-size:12px;text-align:right}
+  .lateempty{font-size:13px;color:#197a44;background:#e4f4ea;border:1px solid #b7e3c6;padding:11px 14px;border-radius:9px}
 </style>
 </head>
 <body>
@@ -130,6 +138,11 @@ const APP_HTML=`
       <div class="chartbox sm"><canvas id="compare"></canvas></div>
       <div class="legend"><span><i style="background:var(--mea-gold)"></i> เป้าหมาย</span><span><i style="background:var(--mea-navy)"></i> ผลจริง</span></div>
     </div>
+  </div>
+  <div class="panel latecard">
+    <h2 style="color:var(--bad)"><span class="dot" style="background:var(--bad)"></span>⚠ กิจกรรมที่ล่าช้ากว่าแผน</h2>
+    <div class="desc">รายการที่เลยช่วงเวลาตามแผนมาแล้ว แต่ผลจริงสะสมยังไม่ถึง 100% ณ เดือนที่เลือก (รวมทุกขั้นตอน)</div>
+    <div id="lateBody"></div>
   </div>
   <div class="panel">
     <h2><span class="dot"></span>ความคืบหน้ารายกิจกรรม — <span id="planTitle"></span></h2>
@@ -252,7 +265,30 @@ function openModal(planKey,aid){
   m.classList.add('show');
 }
 function closeModal(){document.getElementById('modal').classList.remove('show');}
-function renderAll(){renderKpis();renderTrend();renderCompare();renderTable();}
+function lateList(){
+  const out=[];
+  Object.values(DATA.plans).forEach(p=>{
+    p.acts.forEach(a=>{
+      const av=actualAt(a,curMonth);
+      if(curMonth>a.end && av<100){
+        out.push({plan:p.name,id:a.id,name:a.name,end:a.end,av,tgt:a.t[curMonth],over:curMonth-a.end});
+      }
+    });
+  });
+  return out.sort((x,y)=>y.over-x.over);
+}
+function renderLate(){
+  const body=document.getElementById('lateBody'); if(!body)return;
+  const list=lateList();
+  if(!list.length){body.innerHTML=`<div class="lateempty">✓ ไม่มีกิจกรรมที่ล่าช้ากว่าแผน ณ ${MONTHS[curMonth]}</div>`;return;}
+  let h='<ul class="latelist">';
+  list.forEach(it=>{
+    h+=`<li><span class="lt-name">${it.id} ${it.name} <span class="lt-sub">(${it.plan})</span></span>`
+      +`<span class="lt-meta">ครบกำหนด ${MONTHS[it.end]} · ผลจริง ${it.av}% (เป้า ${it.tgt}%) · เลยมา ${it.over} เดือน</span></li>`;
+  });
+  body.innerHTML=h+'</ul>';
+}
+function renderAll(){renderKpis();renderTrend();renderCompare();renderLate();renderTable();}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 function boot(){
