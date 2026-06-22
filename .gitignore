@@ -1,3 +1,7 @@
 .DS_Store
 Compliance_SharePoint_Dashboard.csv
 *.csv
+
+# Excel temp lock files
+~$*
+.DS_Store
