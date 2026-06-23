@@ -4,41 +4,38 @@
 build_data.py — แปลงไฟล์บันทึกผลจริง Excel เป็น data.json สำหรับ Dashboard Compliance
 
 แหล่งข้อมูล:  CP_2569_บันทึกผลจริง_template.xlsx   (ชีต "บันทึกผล" — แผนเดียว แบ่ง 5 ขั้นตอนด้วยแถบหัวกลุ่ม)
-    - แถวหัวกลุ่ม "ขั้นที่ N · ..."     -> แบ่งขั้นตอน
-    - คอลัมน์ น้ำหนัก                    -> ค่าถ่วงน้ำหนักของกิจกรรม
-    - คอลัมน์ ม.ค.69..มี.ค.70            -> ผลจริง "ร้อยละสะสม" รายเดือน (ผู้ปฏิบัติงานกรอก)
-    - คอลัมน์ สิ่งที่ดำเนินการ <เดือน>   -> หมายเหตุรายเดือน (แสดงบน dashboard)
-    - คอลัมน์ ปัญหา/อุปสรรค              -> ใช้ภายใน ไม่ใส่ลง data.json (ไม่เผยแพร่)
+  คอลัมน์ที่อ่าน:
+    น้ำหนัก                       -> ค่าถ่วงน้ำหนักของกิจกรรม
+    เริ่มตามแผน / สิ้นสุดตามแผน     -> ช่วงเวลาตามแผน ใช้คำนวณ "เป้าหมายสะสม %"
+                                     โดยถัวเฉลี่ยถ่วงน้ำหนัก (กระจายเท่ากันทุกเดือน) start..end = 100%
+    ม.ค.69..มี.ค.70 (สีเหลือง)    -> ผลจริง "ร้อยละสะสม" รายเดือน (ผู้ปฏิบัติงานกรอกเอง)
+    สิ่งที่ดำเนินการ <เดือน>        -> หมายเหตุรายเดือน (แสดงบน dashboard)
+    ปัญหา/อุปสรรค                  -> ใช้ภายใน ไม่ใส่ลง data.json (ไม่เผยแพร่)
 
-เป้าหมายตามแผน (target) ฝังไว้ในสคริปต์ -> คำนวณเป็น "เป้าหมายสะสม %" รายเดือนแบบไต่เชิงเส้น
 ใช้ไลบรารีมาตรฐานของ Python เท่านั้น (ไม่ต้อง pip install)   วิธีรัน:  python3 build_data.py
 """
 import json, os, sys, re, zipfile
+import datetime as _dt
 import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 XLSX = os.path.join(HERE, "CP_2569_บันทึกผลจริง_template.xlsx")
 SHEET = "บันทึกผล"
 OUT  = os.path.join(HERE, "data.json")
-import datetime as _dt
-_t=_dt.date.today()
-UPDATED   = "%02d/%02d/%d" % (_t.day, _t.month, _t.year+543)  # วันที่แปลงไฟล์ (อัตโนมัติ)
-CUR_MONTH = None   # None = เลือกเดือนล่าสุดที่มีข้อมูลผลจริงให้อัตโนมัติ
+_t = _dt.date.today()
+UPDATED   = "%02d/%02d/%d" % (_t.day, _t.month, _t.year + 543)   # วันที่แปลงไฟล์ (อัตโนมัติ)
+CUR_MONTH = None    # None = เลือกเดือนล่าสุดที่มีข้อมูลผลจริงให้อัตโนมัติ
 
 MONTHS = ['ม.ค.69','ก.พ.69','มี.ค.69','เม.ย.69','พ.ค.69','มิ.ย.69','ก.ค.69','ส.ค.69',
           'ก.ย.69','ต.ค.69','พ.ย.69','ธ.ค.69','ม.ค.70','ก.พ.70','มี.ค.70']
 N = len(MONTHS)
-COL_W = 4                 # คอลัมน์ น้ำหนัก
-COL_M0 = 5                # คอลัมน์ผลจริงเดือนแรก (E)
-COL_NOTE0 = 5 + N + 1     # คอลัมน์หมายเหตุเดือนแรก (ข้าม ปัญหา/อุปสรรค ที่คอลัมน์ 5+N)
+MIDX = {m: i for i, m in enumerate(MONTHS)}
 
-PLAN = {  # ขั้น -> [(เดือนเริ่ม, เดือนสิ้นสุด) ตามลำดับกิจกรรม]
- "1": [(0,12),(0,11),(0,11)],
- "2": [(0,11),(0,5),(0,11)],
- "3": [(0,12),(0,12),(0,12),(0,12)],
- "4": [(4,9),(5,11),(5,11),(9,12)],
- "5": [(6,11),(6,12),(11,12)],
-}
+COL_ID, COL_NAME, COL_UNIT, COL_W = 1, 2, 3, 4
+COL_START, COL_END = 5, 6
+COL_M0 = 7                       # ผลจริงเดือนแรก
+COL_NOTE0 = COL_M0 + N + 1       # หมายเหตุเดือนแรก (ข้าม ปัญหา/อุปสรรค ที่คอลัมน์ COL_M0+N)
+
 STEP_TITLE = {
  "1":"ทบทวนและปรับปรุงทะเบียนกฎหมาย กฎ ระเบียบที่สำคัญที่เกี่ยวข้องกับการดำเนินงาน",
  "2":"ระบุและประเมินปัจจัยความเสี่ยงที่อาจมีผลกระทบต่อองค์กรที่ทำให้ไม่สามารถปฏิบัติตามกฎ ระเบียบ และพิจารณากำหนด/ปรับปรุงการควบคุม",
@@ -86,8 +83,16 @@ def read_sheet(path, sheet_name):
         return [rows.get(k,{}) for k in range(1,(max(rows) if rows else 0)+1)]
 
 def ramp(s,e):
-    if e<s: e=s
+    """เป้าหมายสะสม % แบบถัวเฉลี่ยถ่วงน้ำหนัก (กระจายเท่ากันทุกเดือน) จาก s..e ถึง 100"""
+    if s is None: return [0]*N
+    if e is None or e<s: e=s
     return [0 if i<s else (100 if i>=e else round((i-s+1)/(e-s+1)*100)) for i in range(N)]
+
+def midx(label, what):
+    if not label: return None
+    if label not in MIDX:
+        warnings.append("%s '%s' ไม่อยู่ในรายชื่อเดือน"%(what,label)); return None
+    return MIDX[label]
 
 def num(x):
     try: return max(0,min(100,round(float(x))))
@@ -101,52 +106,51 @@ def main():
     if hr is None:
         print("ไม่พบหัวตาราง (คำว่า 'ลำดับ')"); sys.exit(1)
 
-    plans={}; order=[]; aid=0; cur=None; seq=0
+    plans={}; order=[]; aid=0; cur=None
     for row in rows[hr+1:]:
-        a1=row.get(1,"")
+        a1=row.get(COL_ID,"")
         if not a1: continue
         mg=re.match(r'^\s*ขั้นที่\s*(\d+)', a1)
         if mg:                                   # แถวหัวกลุ่มขั้นตอน
-            cur=mg.group(1); seq=0
-            key="s"+cur
+            cur=mg.group(1); key="s"+cur
             if key not in plans:
                 plans[key]={"name":"ขั้นที่ %s"%cur,"full":"ขั้นที่ %s · %s"%(cur,STEP_TITLE.get(cur,"")),
                             "kpi":"ดำเนินการครบทุกกิจกรรมตามแผน","budget":"","cum":[],"acts":[]}
                 order.append(key)
             continue
-        if cur is None: continue
-        if not re.match(r'^\d+\.\d+', a1): continue   # ข้ามแถวที่ไม่ใช่กิจกรรม
-        seq+=1
-        name=row.get(2,""); unit=row.get(3,""); w=num(row.get(COL_W,0)) or 1
+        if cur is None or not re.match(r'^\d+\.\d+', a1): continue
+        name=row.get(COL_NAME,""); unit=row.get(COL_UNIT,""); w=num(row.get(COL_W,0)) or 1
+        s=midx(row.get(COL_START,""),"เริ่มตามแผน (%s)"%a1)
+        e=midx(row.get(COL_END,""),"สิ้นสุดตามแผน (%s)"%a1)
+        if s is None: warnings.append("กิจกรรม %s ไม่ได้ระบุเดือนเริ่มตามแผน"%a1)
+        t=ramp(s,e)
         a=[num(row.get(COL_M0+mi,0)) for mi in range(N)]
         notes=[row.get(COL_NOTE0+mi,"") for mi in range(N)]
-        pw=PLAN.get(cur,[])
-        if seq-1 < len(pw): s,e=pw[seq-1]
-        else: s,e=0,N-1; warnings.append("ขั้น %s ลำดับ %d ไม่มีช่วงแผน ใช้เต็มช่วง"%(cur,seq))
-        t=ramp(s,e)
         mx=max(a) if a else 0
         status='done' if mx>=100 else ('prog' if mx>0 else 'none')
         aid+=1
-        plans["s"+cur]["acts"].append({"id":a1,"aid":"A%02d"%aid,"name":name,"unit":unit,
-            "w":w,"start":s,"end":e,"status":status,"t":t,"a":a,"notes":notes})
+        plans["s"+cur]["acts"].append({"id":a1,"aid":"A%02d"%aid,"name":name,"unit":unit,"w":w,
+            "start":(s if s is not None else 0),"end":(e if e is not None else N-1),
+            "status":status,"t":t,"a":a,"notes":notes})
 
     for key in list(plans):
         p=plans[key]
         if not p["acts"]:
             warnings.append("ขั้น %s ไม่มีกิจกรรม"%key); del plans[key]; order.remove(key); continue
         tw=sum(x["w"] for x in p["acts"])
-        p["cum"]=[round(sum(x["t"][i]*x["w"] for x in p["acts"])/tw,1) for i in range(N)]
+        p["cum"]=[round(sum(x["t"][i]*x["w"] for x in p["acts"])/tw,1) for i in range(N)]   # ถัวเฉลี่ยถ่วงน้ำหนักรายขั้น
         p["budget"]="%d กิจกรรม"%len(p["acts"])
 
-    cur=CUR_MONTH
-    if cur is None:
+    cur_m=CUR_MONTH
+    if cur_m is None:
         last=-1
         for p in plans.values():
             for a in p["acts"]:
                 for i,v in enumerate(a["a"]):
                     if v and v>0 and i>last: last=i
-        cur=last if last>=0 else 0
-    out={"updated":UPDATED,"curMonth":cur,
+        cur_m=last if last>=0 else 0
+
+    out={"updated":UPDATED,"curMonth":cur_m,
          "source":"งานด้าน Compliance · ฝ่ายบริหารความเสี่ยงองค์กร (ฝบส.) การไฟฟ้านครหลวง",
          "title":"แผนการกำกับดูแลการปฏิบัติตามกฎ ระเบียบ (Compliance) ประจำปี 2569",
          "months":MONTHS,"plans":{k:plans[k] for k in order}}
@@ -156,7 +160,7 @@ def main():
     tot=sum(len(p["acts"]) for p in plans.values())
     done=sum(1 for p in plans.values() for a in p["acts"] if a["status"]=="done")
     prog=sum(1 for p in plans.values() for a in p["acts"] if a["status"]=="prog")
-    print("✓ สร้าง data.json สำเร็จ")
+    print("✓ สร้าง data.json สำเร็จ  (อัปเดต %s · เดือนล่าสุดที่มีข้อมูล = %s)"%(UPDATED, MONTHS[cur_m]))
     print("  ขั้นตอน %d · กิจกรรม %d · เสร็จ %d · กำลังดำเนินการ %d · ยังไม่เริ่ม %d"%(len(plans),tot,done,prog,tot-done-prog))
     if warnings:
         print("\n⚠ คำเตือน:")
