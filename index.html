@@ -10,14 +10,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root{
-    --mea-navy:#02275E;--mea-navy-d:#011a40;--mea-navy-l:#eaf0f9;
-    --mea-gold:#E8A020;--mea-gold-d:#c4861a;
-    --ink:#1b2433;--muted:#5e6b80;--line:#e3e8f0;--bg:#f4f6fa;--card:#fff;
-    --ok:#1f9d57;--warn:#E8A020;--bad:#d9534f;--idle:#9aa6a1;
+    --mea-navy:#006b3f;--mea-navy-d:#004d2e;--mea-navy-l:#e6f2ec;
+    --mea-gold:#c9a13b;--mea-gold-d:#a8842a;
+    --ink:#1c2b25;--muted:#5e6f68;--line:#e3eae6;--bg:#f4f7f5;--card:#fff;
+    --ok:#2e9e5b;--warn:#e0a526;--bad:#d9534f;--idle:#9aa6a1;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:"Segoe UI","Sarabun",Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
-  header{background:linear-gradient(120deg,var(--mea-navy),var(--mea-navy-d));color:#fff;padding:22px 26px;box-shadow:0 2px 12px rgba(2,39,94,.18)}
+  header{background:linear-gradient(120deg,var(--mea-navy),var(--mea-navy-d));color:#fff;padding:22px 26px;box-shadow:0 2px 12px rgba(0,107,63,.18)}
   header .top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
   .logo{width:56px;height:56px;border-radius:50%;object-fit:contain;background:#fff;display:block;flex:none;padding:4px}
   header h1{font-size:20px;font-weight:700}
@@ -27,8 +27,8 @@
   .wrap{max-width:1280px;margin:0 auto;padding:22px}
   .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:18px}
   .kpi{background:var(--card);border-radius:14px;padding:15px 15px 13px;border:1px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.04);cursor:pointer;transition:.15s;position:relative;overflow:hidden}
-  .kpi:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(2,39,94,.14)}
-  .kpi.active{border-color:var(--mea-navy);box-shadow:0 6px 18px rgba(2,39,94,.18)}
+  .kpi:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,107,63,.14)}
+  .kpi.active{border-color:var(--mea-navy);box-shadow:0 6px 18px rgba(0,107,63,.18)}
   .kpi .bar{position:absolute;top:0;left:0;width:5px;height:100%}
   .kpi .name{font-size:12.5px;color:var(--muted);font-weight:600;min-height:34px}
   .kpi .num{display:flex;align-items:baseline;gap:6px;margin-top:8px}
@@ -64,7 +64,7 @@
   .actrow{cursor:pointer}
   .actrow .more{font-size:11px;color:var(--mea-gold-d);font-weight:600;white-space:nowrap;opacity:.75}
   .actrow:hover .more{opacity:1;text-decoration:underline}
-  .modal{display:none;position:fixed;inset:0;background:rgba(2,39,94,.5);z-index:100;align-items:center;justify-content:center;padding:20px}
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,107,63,.5);z-index:100;align-items:center;justify-content:center;padding:20px}
   .modal.show{display:flex}
   .mbox{background:#fff;border-radius:16px;max-width:760px;width:100%;max-height:86vh;overflow:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.3)}
   .mclose{position:absolute;top:14px;right:14px;border:none;background:var(--mea-navy-l);color:var(--mea-navy);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:14px;font-weight:700;z-index:2}
@@ -80,7 +80,7 @@
   .mtbl .mcell{font-weight:700;color:var(--mea-navy);white-space:nowrap}
   .mtbl .ncell{color:var(--ink);line-height:1.5}
   .mtbl .ncell .empty{color:#b3bfcb;font-style:italic;font-size:12px}
-  .mtbl .curm{background:#fcf3df}
+  .mtbl .curm{background:#f7efd8}
   .mtbl .curm .mcell{color:var(--mea-gold-d)}
   .mtbl .future{opacity:.45}
   .dotst{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
@@ -122,7 +122,7 @@
 
 <script>
 let DATA=null,MONTHS=[],curMonth=5,curPlan=null,trendChart,compChart;
-const C={ok:'#1f9d57',warn:'#E8A020',bad:'#d9534f',idle:'#9aa6a1'};
+const C={ok:'#2e9e5b',warn:'#e0a526',bad:'#d9534f',idle:'#9aa6a1'};
 
 // ===== จุดกระพริบที่เดือนปัจจุบัน (เป้าหมาย=ทอง, ผลจริง=กรมท่า) =====
 const pulsePlugin={
@@ -134,7 +134,7 @@ const pulsePlugin={
     [0,1].forEach(di=>{
       const meta=chart.getDatasetMeta(di); if(!meta||!meta.data)return;
       const pt=meta.data[mi]; if(!pt||pt.skip||pt.y==null)return;
-      const col=di===0?'#E8A020':'#02275E';
+      const col=di===0?'#c9a13b':'#006b3f';
       ctx.save();
       // วงแหวนขยาย-จางหาย
       ctx.beginPath(); ctx.arc(pt.x,pt.y,4+phase*11,0,Math.PI*2);
@@ -233,8 +233,8 @@ function renderTrend(){
   const actCum=MONTHS.map((_,i)=>i<=curMonth?planCumActual(p,i):null);
   document.getElementById('trendDesc').textContent=(p.full||p.name)+" — เส้นทอง=เป้าหมายสะสม, เส้นกรมท่า=ผลจริงสะสม (ถึงเดือน "+MONTHS[curMonth]+")";
   const data={labels:MONTHS,datasets:[
-    {label:'เป้าหมายสะสม (%)',data:tgtCum,borderColor:'#E8A020',backgroundColor:'rgba(232,160,32,.12)',borderWidth:2,tension:.3,fill:true,pointRadius:3},
-    {label:'ผลจริงสะสม (%)',data:actCum,borderColor:'#02275E',backgroundColor:'rgba(2,39,94,.10)',borderWidth:2.5,tension:.3,fill:true,pointRadius:3,spanGaps:false}]};
+    {label:'เป้าหมายสะสม (%)',data:tgtCum,borderColor:'#c9a13b',backgroundColor:'rgba(201,161,59,.12)',borderWidth:2,tension:.3,fill:true,pointRadius:3},
+    {label:'ผลจริงสะสม (%)',data:actCum,borderColor:'#006b3f',backgroundColor:'rgba(0,107,63,.10)',borderWidth:2.5,tension:.3,fill:true,pointRadius:3,spanGaps:false}]};
   if(trendChart){trendChart.data=data;trendChart.update();}
   else trendChart=new Chart(document.getElementById('trend'),{type:'line',data,options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}},plugins:{legend:{position:'bottom'}}}});
 }
@@ -243,8 +243,8 @@ function renderCompare(){
   const tgt=Object.values(DATA.plans).map(p=>planCumTarget(p,curMonth));
   const act=Object.values(DATA.plans).map(p=>planCumActual(p,curMonth));
   const data={labels,datasets:[
-    {label:'เป้าหมาย',data:tgt,backgroundColor:'#E8A020',borderRadius:5},
-    {label:'ผลจริง',data:act,backgroundColor:'#02275E',borderRadius:5}]};
+    {label:'เป้าหมาย',data:tgt,backgroundColor:'#c9a13b',borderRadius:5},
+    {label:'ผลจริง',data:act,backgroundColor:'#006b3f',borderRadius:5}]};
   if(compChart){compChart.data=data;compChart.update();}
   else compChart=new Chart(document.getElementById('compare'),{type:'bar',data,options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}},plugins:{legend:{display:false}}}});
 }
