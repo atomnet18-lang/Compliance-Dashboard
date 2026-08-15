@@ -62,6 +62,22 @@
   .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:12px}
   .legend span{display:inline-flex;align-items:center;gap:5px}
   .legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .pillpanel{background:#101820;border-color:#101820;color:#fff;overflow:hidden}
+  .pillhead{margin-bottom:10px}
+  .pillkicker{font-size:13px;font-weight:800;color:#fff}
+  .pilltitle{font-size:19px;font-weight:600;color:#fff;line-height:1.3;margin-top:2px}
+  .pillsub{font-size:19px;font-weight:400;color:#aebcc2}
+  .pilllegend{display:flex;gap:16px;font-size:11.5px;color:#aebcc2;margin:10px 0 6px}
+  .pilllegend span{display:inline-flex;align-items:center;gap:6px}
+  .pilllegend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .pillbars{display:flex;align-items:flex-end;gap:20px;overflow-x:auto;padding:8px 2px 10px;min-height:222px}
+  .pillgroup{display:flex;flex-direction:column;align-items:center;flex:none}
+  .pillpair{display:flex;align-items:flex-end;gap:6px;height:210px}
+  .pillbar{width:26px;border-radius:999px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:9px;min-height:42px;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+  .pillbar .val{writing-mode:vertical-rl;transform:rotate(180deg);font-size:10.5px;font-weight:800;white-space:nowrap}
+  .pilllabel{margin-top:9px;font-size:12px;color:#c7d0d6;font-weight:600}
+  .pilldivider{border-top:1px solid rgba(255,255,255,.18);margin:8px 0 16px}
+  .pillinsight{font-size:17px;line-height:1.4;color:#fff;font-weight:400}
   .note{font-size:11.5px;color:var(--muted);margin-top:14px;padding:10px 12px;background:var(--mea-navy-l);border-radius:8px;border-left:3px solid var(--mea-gold)}
   .actrow{cursor:pointer}
   .actrow .more{font-size:11px;color:var(--mea-gold-d);font-weight:600;white-space:nowrap;opacity:.75}
@@ -168,7 +184,14 @@
 <footer>จัดทำโดยงานด้าน Compliance · ฝ่ายบริหารความเสี่ยงองค์กร (ฝบส.) การไฟฟ้านครหลวง — ข้อมูลปรับปรุงผ่าน data.json</footer>
 
 <script>
-let DATA=null,MONTHS=[],curMonth=5,curPlan=null,trendChart,compChart;
+let DATA=null,MONTHS=[],curMonth=5,curPlan=null,trendChart;
+const STEP_HUES=[
+  {a:'#0b5fd1',t:'#b9dcf7',ta:'#ffffff',tt:'#0b2f66'},
+  {a:'#189c3e',t:'#bce8c9',ta:'#ffffff',tt:'#0d3e1c'},
+  {a:'#f0870b',t:'#f6dcbb',ta:'#3a2200',tt:'#4a2f00'},
+  {a:'#d418c9',t:'#f3c2ee',ta:'#ffffff',tt:'#4a0f45'},
+  {a:'#6b1fd6',t:'#d8c3f5',ta:'#ffffff',tt:'#301158'}
+];
 const C={ok:'#10a37f',warn:'#ffbb01',bad:'#ff6a52',idle:'#9fb0ae'};
 
 // ===== จุดกระพริบที่เดือนปัจจุบัน (เป้าหมาย=ทอง, ผลจริง=กรมท่า) =====
@@ -212,11 +235,15 @@ const APP_HTML=`
       <div class="desc" id="trendDesc"></div>
       <div class="chartbox"><canvas id="trend"></canvas></div>
     </div>
-    <div class="panel">
-      <h2><span class="dot"></span>เปรียบเทียบความคืบหน้าทุกขั้นตอน ณ เดือนปัจจุบัน</h2>
-      <div class="desc">แท่งทอง = เป้าหมายสะสม · แท่งกรมท่า = ผลจริงสะสม</div>
-      <div class="chartbox sm"><canvas id="compare"></canvas></div>
-      <div class="legend"><span><i style="background:var(--mea-gold)"></i> เป้าหมาย</span><span><i style="background:var(--mea-navy)"></i> ผลจริง</span></div>
+    <div class="panel pillpanel">
+      <div class="pillhead">
+        <div class="pillkicker">ภาพรวม</div>
+        <div class="pilltitle">ความคืบหน้าทุกขั้นตอน <span class="pillsub">ณ เดือน <span id="pillMonth"></span></span></div>
+      </div>
+      <div class="pilllegend"><span><i style="background:rgba(255,255,255,.35)"></i> อ่อน = เป้าหมาย</span><span><i style="background:rgba(255,255,255,.95)"></i> เข้ม = ผลจริง</span></div>
+      <div class="pillbars" id="pillBars"></div>
+      <div class="pilldivider"></div>
+      <div class="pillinsight" id="pillInsight"></div>
     </div>
   </div>
   <div class="panel latecard">
@@ -287,14 +314,25 @@ function renderTrend(){
   else trendChart=new Chart(document.getElementById('trend'),{type:'line',data,options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}},plugins:{legend:{position:'bottom'}}}});
 }
 function renderCompare(){
-  const labels=Object.values(DATA.plans).map(p=>p.name);
-  const tgt=Object.values(DATA.plans).map(p=>planCumTarget(p,curMonth));
-  const act=Object.values(DATA.plans).map(p=>planCumActual(p,curMonth));
-  const data={labels,datasets:[
-    {label:'เป้าหมาย',data:tgt,backgroundColor:'#ffbb01',borderRadius:5},
-    {label:'ผลจริง',data:act,backgroundColor:'#016563',borderRadius:5}]};
-  if(compChart){compChart.data=data;compChart.update();}
-  else compChart=new Chart(document.getElementById('compare'),{type:'bar',data,options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}},plugins:{legend:{display:false}}}});
+  const mEl=document.getElementById('pillMonth');if(mEl)mEl.textContent=MONTHS[curMonth];
+  const box=document.getElementById('pillBars');if(!box)return;
+  box.innerHTML='';
+  const MAXH=200;let worst=null;
+  Object.values(DATA.plans).forEach((p,i)=>{
+    const tgt=planCumTarget(p,curMonth),act=planCumActual(p,curMonth),gap=+(tgt-act).toFixed(1);
+    if(gap>0&&(worst===null||gap>worst.gap))worst={full:p.full||p.name,gap};
+    const hue=STEP_HUES[i%STEP_HUES.length];
+    const hT=Math.max(42,Math.round(tgt/100*MAXH)),hA=Math.max(42,Math.round(act/100*MAXH));
+    const g=document.createElement('div');g.className='pillgroup';
+    g.innerHTML=`<div class="pillpair">
+        <div class="pillbar" style="height:${hT}px;background:${hue.t};color:${hue.tt}"><span class="val">${tgt}%</span></div>
+        <div class="pillbar" style="height:${hA}px;background:${hue.a};color:${hue.ta}"><span class="val">${act}%</span></div>
+      </div>
+      <div class="pilllabel">${p.name}</div>`;
+    box.appendChild(g);
+  });
+  const ins=document.getElementById('pillInsight');
+  if(ins)ins.textContent=worst?`${worst.full} ล่าช้ากว่าเป้าหมายมากที่สุด (ห่าง ${worst.gap}%) ณ เดือน ${MONTHS[curMonth]}`:`ทุกขั้นตอนดำเนินการได้ตามหรือเกินเป้าหมาย ณ เดือน ${MONTHS[curMonth]}`;
 }
 function renderTable(){
   const p=DATA.plans[curPlan];
@@ -384,7 +422,6 @@ function toggleTheme(){
   const dark=cb?cb.checked:!document.body.classList.contains('dark');
   setTheme(dark);
   if(trendChart){trendChart.destroy();trendChart=null;}
-  if(compChart){compChart.destroy();compChart=null;}
   if(DATA)renderAll();
   try{localStorage.setItem('cp_theme',dark?'dark':'light');}catch(e){}
 }
