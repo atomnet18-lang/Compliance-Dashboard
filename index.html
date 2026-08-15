@@ -186,11 +186,7 @@
 <script>
 let DATA=null,MONTHS=[],curMonth=5,curPlan=null,trendChart;
 const STEP_HUES=[
-  {a:'#0b5fd1',t:'#b9dcf7',ta:'#ffffff',tt:'#0b2f66'},
-  {a:'#189c3e',t:'#bce8c9',ta:'#ffffff',tt:'#0d3e1c'},
-  {a:'#f0870b',t:'#f6dcbb',ta:'#3a2200',tt:'#4a2f00'},
-  {a:'#d418c9',t:'#f3c2ee',ta:'#ffffff',tt:'#4a0f45'},
-  {a:'#6b1fd6',t:'#d8c3f5',ta:'#ffffff',tt:'#301158'}
+  {a:'#016563',t:'#ffbb01',ta:'#ffffff',tt:'#12211f'}
 ];
 const C={ok:'#10a37f',warn:'#ffbb01',bad:'#ff6a52',idle:'#9fb0ae'};
 
@@ -240,7 +236,7 @@ const APP_HTML=`
         <div class="pillkicker">ภาพรวม</div>
         <div class="pilltitle">ความคืบหน้าทุกขั้นตอน <span class="pillsub">ณ เดือน <span id="pillMonth"></span></span></div>
       </div>
-      <div class="pilllegend"><span><i style="background:rgba(255,255,255,.35)"></i> อ่อน = เป้าหมาย</span><span><i style="background:rgba(255,255,255,.95)"></i> เข้ม = ผลจริง</span></div>
+      <div class="pilllegend"><span><i style="background:#ffbb01"></i> ทอง = เป้าหมาย</span><span><i style="background:#016563"></i> กรมท่า = ผลจริง</span></div>
       <div class="pillbars" id="pillBars"></div>
       <div class="pilldivider"></div>
       <div class="pillinsight" id="pillInsight"></div>
