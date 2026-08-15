@@ -109,6 +109,7 @@
   @media (prefers-reduced-motion: reduce){
     *{transition:none!important;animation:none!important}
     .kpi:hover{transform:none}
+    .switchinput::before{transition:none!important}
   }
   /* --- ปุ่ม glass + โหมดมืด (Dark mode) --- */
   .glassbtn{font-family:inherit;font-size:12px;font-weight:600;color:#0c2422;cursor:pointer;padding:6px 14px;border-radius:999px;margin-bottom:6px;
@@ -117,6 +118,14 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.75),0 4px 14px rgba(0,0,0,.14);transition:background .15s,box-shadow .15s}
   .glassbtn:hover{background:rgba(255,255,255,.74)}
   .glassbtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  .switchbtn{display:inline-flex;align-items:center;gap:8px}
+  .switchinput{appearance:none;-webkit-appearance:none;width:38px;height:21px;margin:0;flex:none;cursor:pointer;border-radius:999px;position:relative;background:rgba(12,36,34,.28);border:1px solid rgba(12,36,34,.25);transition:background .2s,border-color .2s}
+  .switchinput::before{content:'';position:absolute;top:1px;left:1px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .2s}
+  .switchinput:checked{background:var(--mea-navy);border-color:var(--mea-navy)}
+  .switchinput:checked::before{transform:translateX(17px)}
+  .switchinput:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  body.dark .switchinput{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.35)}
+  body.dark .switchinput:checked{background:var(--mea-gold);border-color:var(--mea-gold)}
   body.dark{--ink:#e6f4f3;--muted:#8fb0ac;--line:#1c2b29;--bg:#0a1615;--card:#10201d;--mea-navy-l:#0c2422}
   body.dark tbody tr:nth-child(even){background:#0e1a18}
   body.dark .track,body.dark .mini{background:#1c2b29}
@@ -142,7 +151,10 @@
       <div class="sub">การไฟฟ้านครหลวง · ฝ่ายบริหารความเสี่ยงองค์กร (ฝบส.) · เปรียบเทียบเป้าหมายของแผน กับผลการดำเนินงานจริง</div>
     </div>
     <div class="asof">
-      <button id="themeToggle" class="glassbtn" aria-pressed="false" title="สลับโหมดมืด/สว่าง">🌙 โหมดมืด</button><br>
+      <label class="glassbtn switchbtn" for="themeToggle" title="สลับโหมดมืด/สว่าง">
+        <span id="themeToggleText">🌙 โหมดมืด</span>
+        <input type="checkbox" role="switch" id="themeToggle" class="switchinput">
+      </label><br>
       ข้อมูล ณ เดือน<br><select id="monthSel"></select>
       <div id="updated" style="margin-top:6px;font-size:11px"></div>
     </div>
@@ -361,12 +373,15 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 function setTheme(dark){
   document.body.classList.toggle('dark',dark);
-  const b=document.getElementById('themeToggle');
-  if(b){b.textContent=dark?'☀️ โหมดสว่าง':'🌙 โหมดมืด';b.setAttribute('aria-pressed',dark);}
+  const cb=document.getElementById('themeToggle');
+  const tx=document.getElementById('themeToggleText');
+  if(cb)cb.checked=dark;
+  if(tx)tx.textContent=dark?'☀️ โหมดสว่าง':'🌙 โหมดมืด';
   if(window.Chart)Chart.defaults.color=dark?'#9fd4c8':'#666';
 }
 function toggleTheme(){
-  const dark=!document.body.classList.contains('dark');
+  const cb=document.getElementById('themeToggle');
+  const dark=cb?cb.checked:!document.body.classList.contains('dark');
   setTheme(dark);
   if(trendChart){trendChart.destroy();trendChart=null;}
   if(compChart){compChart.destroy();compChart=null;}
@@ -386,7 +401,7 @@ function boot(){
   curPlan=Object.keys(DATA.plans)[0];
   const _dark=(function(){try{const v=localStorage.getItem('cp_theme');if(v)return v==='dark';}catch(e){}return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches;})();
   setTheme(_dark);
-  const _tb=document.getElementById('themeToggle');if(_tb)_tb.onclick=toggleTheme;
+  const _tb=document.getElementById('themeToggle');if(_tb)_tb.addEventListener('change',toggleTheme);
   renderAll();
   startPulse();
 }
