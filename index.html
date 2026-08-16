@@ -176,7 +176,7 @@
 let DATA=null,MONTHS=[],curMonth=5,curPlan=null,trendChart;
 const C={ok:'#10a37f',warn:'#ffbb01',bad:'#ff6a52',idle:'#9fb0ae'};
 
-// ===== จุดกระพริบที่เดือนปัจจุบัน (เป้าหมาย=ทอง, ผลจริง=กรมท่า) =====
+// ===== จุดกระพริบที่เดือนปัจจุบัน บนเส้นเป้าหมายและผลจริง =====
 const pulsePlugin={
   id:'pulse',
   afterDatasetsDraw(chart){
@@ -221,7 +221,7 @@ const APP_HTML=`
         <div class="pillkicker">ภาพรวม</div>
         <div class="pilltitle">ความคืบหน้าทุกขั้นตอน <span class="pillsub">ณ เดือน <span id="pillMonth"></span></span></div>
       </div>
-      <div class="pilllegend"><span><i style="background:linear-gradient(90deg,#8fd7d0,#016563)"></i> แถบกรมท่า = ผลจริง</span><span><i style="background:#ffbb01;border-radius:2px;width:4px;height:12px"></i> เข็มทอง = เป้าหมาย</span></div>
+      <div class="pilllegend"><span><i style="background:linear-gradient(90deg,#8fd7d0,#016563)"></i> ผลจริง</span><span><i style="background:#ffbb01;border-radius:2px;width:4px;height:12px"></i> เป้าหมาย</span></div>
       <div class="pillbars" id="pillBars"></div>
       <div class="pilldivider"></div>
       <div class="pillinsight" id="pillInsight"></div>
@@ -280,7 +280,7 @@ function renderTrend(){
   const p=DATA.plans[curPlan];
   const tgtCum=MONTHS.map((_,i)=>planCumTarget(p,i));
   const actCum=MONTHS.map((_,i)=>i<=curMonth?planCumActual(p,i):null);
-  document.getElementById('trendDesc').textContent=(p.full||p.name)+" — เส้นทอง=เป้าหมายสะสม, เส้นกรมท่า=ผลจริงสะสม (ถึงเดือน "+MONTHS[curMonth]+")";
+  document.getElementById('trendDesc').textContent=(p.full||p.name)+" — ข้อมูลถึงเดือน "+MONTHS[curMonth];
   const data={labels:MONTHS,datasets:[
     {label:'เป้าหมายสะสม (%)',data:tgtCum,borderColor:'#ffbb01',backgroundColor:'rgba(255,187,1,.12)',borderWidth:2,tension:.3,fill:true,pointRadius:3},
     {label:'ผลจริงสะสม (%)',data:actCum,borderColor:'#016563',backgroundColor:'rgba(1,101,99,.10)',borderWidth:2.5,tension:.3,fill:true,pointRadius:3,spanGaps:false}]};
