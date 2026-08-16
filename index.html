@@ -278,7 +278,7 @@ function planCumActual(p,mi){
   return tw?+(v/tw*100).toFixed(1):0;
 }
 const stTH=st=>st==='ok'?'ตามแผน':st==='warn'?'ใกล้เป้า':st==='bad'?'ต่ำกว่าเป้า':'รอกำหนด';
-const stBin=st=>(st==='warn'||st==='bad')?'ไม่เป็นไปตามแผน':'เป็นไปตามแผน';
+const stBin=st=>(st==='warn'||st==='bad')?'ไม่เป็นตามแผน':'ตามแผน';
 const truncName=(s,n)=>(s&&s.length>n)?s.slice(0,n)+'…':(s||'');
 function renderMarquee(){
   const track=document.getElementById('marqueeTrack');if(!track||!DATA)return;
