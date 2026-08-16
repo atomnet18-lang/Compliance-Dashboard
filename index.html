@@ -22,29 +22,23 @@
   .logo{width:56px;height:56px;border-radius:50%;object-fit:contain;background:#fff;display:block;flex:none;padding:4px}
   header h1{font-size:20px;font-weight:700}
   header .sub{color:#d7f0ee;font-size:13px;margin-top:2px}
-  .asof{margin-left:auto;text-align:right;font-size:12px;color:#d7f0ee}
+  .asof{display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin-left:auto;text-align:right;font-size:12px;color:#d7f0ee}
   .asof select{margin-top:4px;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:600;color:#0c2422;cursor:pointer;background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.55);-webkit-backdrop-filter:blur(14px) saturate(170%);backdrop-filter:blur(14px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.75), inset 0 -1px 2px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.14);transition:box-shadow .15s,background .15s}
   .asof select:hover{background:rgba(255,255,255,.72)}
   .asof select:focus-visible{outline:2px solid #fff;outline-offset:2px}
   .wrap{max-width:1280px;margin:0 auto;padding:22px}
-  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:18px}
-  .kpi{background:var(--card);border-radius:14px;padding:15px 15px 13px;border:1px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.04);cursor:pointer;transition:.15s;position:relative;overflow:hidden}
-  .kpi:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(1,101,99,.14)}
-  .kpi.active{border-color:var(--mea-navy);box-shadow:0 6px 18px rgba(1,101,99,.18)}
-  .kpi .bar{position:absolute;top:0;left:0;width:5px;height:100%}
-  .kpi .name{font-size:12.5px;color:var(--muted);font-weight:600;min-height:34px}
-  .kpi .num{display:flex;align-items:baseline;gap:6px;margin-top:8px}
-  .kpi .actual{font-size:28px;font-weight:800}
-  .kpi .target{font-size:12.5px;color:var(--muted)}
-  .kpi .track{height:8px;border-radius:6px;background:#e3f2f0;margin-top:10px;overflow:hidden;position:relative}
-  .kpi .fill{height:100%;border-radius:6px}
-  .kpi .tmark{position:absolute;top:-2px;width:2px;height:12px;background:var(--mea-gold-d)}
-  .kpi .meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px}
+  .tabbar{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px;margin-bottom:18px;overflow-x:auto;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+  .tabbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap;border:none;background:transparent;color:var(--muted);font-family:inherit;font-size:13px;font-weight:600;padding:10px 14px;border-radius:999px;cursor:pointer;transition:background .15s,color .15s}
+  .tabbtn:hover{background:var(--mea-navy-l)}
+  .tabbtn.active{background:var(--mea-navy);color:#fff}
+  .tabbtn .tdot{width:8px;height:8px;border-radius:50%;flex:none}
+  .tabbtn .tpct{font-weight:800}
+  .tabbtn:focus-visible{outline:2px solid var(--mea-navy);outline-offset:2px}
   .chip{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;color:#fff}
   .grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;margin-bottom:18px}
   .panel{background:var(--card);border-radius:14px;border:1px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.04);padding:18px}
   .panel h2{font-size:15px;color:var(--mea-navy);margin-bottom:4px;display:flex;align-items:center;gap:8px}
-  .panel h2 .dot{width:9px;height:9px;border-radius:3px;background:var(--mea-gold)}
+  .panel h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--mea-gold);flex:none}
   .panel .desc{font-size:12px;color:var(--muted);margin-bottom:12px}
   .chartbox{position:relative;height:300px}
   .chartbox.sm{height:260px}
@@ -61,7 +55,7 @@
   .w{font-size:11px;color:var(--muted)}
   .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:12px}
   .legend span{display:inline-flex;align-items:center;gap:5px}
-  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .legend i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
   .pillpanel{overflow:hidden}
   .pillhead{margin-bottom:10px}
   .pillkicker{font-size:13px;font-weight:800;color:var(--mea-navy)}
@@ -69,7 +63,7 @@
   .pillsub{font-size:19px;font-weight:400;color:var(--muted)}
   .pilllegend{display:flex;gap:16px;font-size:11.5px;color:var(--muted);margin:10px 0 6px}
   .pilllegend span{display:inline-flex;align-items:center;gap:6px}
-  .pilllegend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .pilllegend i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
   .pillbars{display:flex;flex-direction:column;gap:20px;padding:8px 2px 4px}
   .pillrow{display:flex;align-items:center;gap:14px}
   .pillrowlabel{width:112px;flex:none;font-size:13.5px;font-weight:600;color:var(--ink)}
@@ -88,7 +82,7 @@
   .modal{display:none;position:fixed;inset:0;background:rgba(1,101,99,.5);z-index:100;align-items:center;justify-content:center;padding:20px}
   .modal.show{display:flex}
   .mbox{background:#fff;border-radius:16px;max-width:760px;width:100%;max-height:86vh;overflow:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-  .mclose{position:absolute;top:14px;right:14px;color:#fff;width:34px;height:34px;border-radius:999px;cursor:pointer;font-size:14px;font-weight:700;z-index:2;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);box-shadow:inset 0 1px 0 rgba(255,255,255,.55), 0 4px 12px rgba(0,0,0,.2);transition:background .15s}
+  .mclose{position:absolute;top:14px;right:14px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;color:#fff;width:34px;height:34px;border-radius:999px;cursor:pointer;font-size:14px;font-weight:700;z-index:2;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);box-shadow:inset 0 1px 0 rgba(255,255,255,.55), 0 4px 12px rgba(0,0,0,.2);transition:background .15s}
   .mclose:hover{background:rgba(255,255,255,.4)}
   .mclose:focus-visible{outline:2px solid #fff;outline-offset:2px}
   .mhead{background:linear-gradient(120deg,var(--mea-navy),var(--mea-navy-d));color:#fff;padding:22px 24px 18px;border-radius:16px 16px 0 0}
@@ -110,7 +104,7 @@
   .loading{text-align:center;padding:60px;color:var(--muted)}
   .err{text-align:center;padding:40px;color:var(--bad);font-size:14px}
   footer{text-align:center;color:var(--muted);font-size:11.5px;padding:18px}
-  @media(max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+  @media(max-width:980px){.grid2{grid-template-columns:1fr}}
   /* --- Liquid Glass: fallback สำหรับผู้ที่เปิด Reduce Transparency / Reduce Motion --- */
   @media (prefers-reduced-transparency: reduce){
     header{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(120deg,var(--mea-navy),var(--mea-navy-d))}
@@ -119,7 +113,6 @@
   }
   @media (prefers-reduced-motion: reduce){
     *{transition:none!important;animation:none!important}
-    .kpi:hover{transform:none}
     .switchinput::before{transition:none!important}
   }
   /* --- ปุ่ม glass + โหมดมืด (Dark mode) --- */
@@ -163,9 +156,9 @@
       <label class="glassbtn switchbtn" for="themeToggle" title="สลับโหมดมืด/สว่าง">
         <span id="themeToggleText">🌙 โหมดมืด</span>
         <input type="checkbox" role="switch" id="themeToggle" class="switchinput">
-      </label><br>
-      ข้อมูล ณ เดือน<br><select id="monthSel"></select>
-      <div id="updated" style="margin-top:6px;font-size:11px"></div>
+      </label>
+      <div class="asofmonth">ข้อมูล ณ เดือน<br><select id="monthSel"></select></div>
+      <div id="updated" style="font-size:11px"></div>
     </div>
   </div>
 </header>
@@ -214,7 +207,7 @@ function startPulse(){
 }
 
 const APP_HTML=`
-  <div class="kpis" id="kpis"></div>
+  <div class="tabbar" id="kpis" role="tablist" aria-label="เลือกขั้นตอน"></div>
   <div class="grid2">
     <div class="panel">
       <h2><span class="dot"></span>เป้าหมายสะสม vs ผลการดำเนินงานจริงสะสม (รายเดือน)</h2>
@@ -268,19 +261,17 @@ function planCumActual(p,mi){
 const stTH=st=>st==='ok'?'ตามแผน':st==='warn'?'ใกล้เป้า':st==='bad'?'ต่ำกว่าเป้า':'รอกำหนด';
 
 function renderKpis(){
-  const box=document.getElementById('kpis');box.innerHTML='';
+  const box=document.getElementById('kpis');if(!box)return;box.innerHTML='';
   Object.entries(DATA.plans).forEach(([k,p])=>{
     const tgt=planCumTarget(p,curMonth),act=planCumActual(p,curMonth),st=statusOf(tgt,act);
-    const card=document.createElement('div');card.className='kpi'+(k===curPlan?' active':'');
-    card.innerHTML=`<div class="bar" style="background:${C[st]}"></div>
-      <div class="name">${p.full||p.name}</div>
-      <div class="num"><span class="actual">${act}%</span><span class="target">/ เป้า ${tgt}%</span>
-        <span class="chip" style="background:${C[st]};margin-left:auto">${stTH(st)}</span></div>
-      <div class="track"><div class="fill" style="width:${Math.min(act,100)}%;background:${C[st]}"></div>
-        <div class="tmark" style="left:${Math.min(tgt,100)}%"></div></div>
-      <div class="meta"><span>${p.acts.length} กิจกรรม</span><span>${p.name}</span></div>`;
-    card.onclick=()=>{curPlan=k;renderAll();};
-    box.appendChild(card);
+    const btn=document.createElement('button');
+    btn.type='button';btn.role='tab';
+    btn.className='tabbtn'+(k===curPlan?' active':'');
+    btn.setAttribute('aria-selected',k===curPlan?'true':'false');
+    btn.title=`${p.full||p.name} — ผลจริง ${act}% / เป้า ${tgt}% (${stTH(st)})`;
+    btn.innerHTML=`<span class="tdot" style="background:${C[st]}"></span>${p.name}<span class="tpct">${act}%</span>`;
+    btn.onclick=()=>{curPlan=k;renderAll();};
+    box.appendChild(btn);
   });
 }
 function renderTrend(){
