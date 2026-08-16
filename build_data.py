@@ -110,11 +110,11 @@ def main():
     for row in rows[hr+1:]:
         a1=row.get(COL_ID,"")
         if not a1: continue
-        mg=re.match(r'^\s*ขั้นที่\s*(\d+)', a1)
+        mg=re.match(r'^\s*กิจกรรมที่\s*(\d+)', a1)
         if mg:                                   # แถวหัวกลุ่มขั้นตอน
             cur=mg.group(1); key="s"+cur
             if key not in plans:
-                plans[key]={"name":"ขั้นที่ %s"%cur,"full":"ขั้นที่ %s · %s"%(cur,STEP_TITLE.get(cur,"")),
+                plans[key]={"name":"กิจกรรมที่ %s"%cur,"full":"กิจกรรมที่ %s · %s"%(cur,STEP_TITLE.get(cur,"")),
                             "kpi":"ดำเนินการครบทุกกิจกรรมตามแผน","budget":"","cum":[],"acts":[]}
                 order.append(key)
             continue
