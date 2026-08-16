@@ -27,13 +27,22 @@
   .asof select:hover{background:rgba(255,255,255,.72)}
   .asof select:focus-visible{outline:2px solid #fff;outline-offset:2px}
   .wrap{max-width:1280px;margin:0 auto;padding:22px}
-  .tabbar{display:flex;gap:6px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:5px;margin-top:14px;overflow-x:auto;-webkit-backdrop-filter:blur(16px) saturate(180%);backdrop-filter:blur(16px) saturate(180%);box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
-  .tabbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap;border:none;background:transparent;color:#eafaf7;font-family:inherit;font-size:13px;font-weight:600;padding:10px 14px;border-radius:999px;cursor:pointer;transition:background .15s,color .15s}
-  .tabbtn:hover{background:rgba(255,255,255,.16)}
-  .tabbtn.active{background:#fff;color:var(--mea-navy-d)}
-  .tabbtn .tdot{width:8px;height:8px;border-radius:50%;flex:none}
-  .tabbtn .tpct{font-weight:800}
-  .tabbtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  .plancards{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:18px}
+  .plancard{background:var(--card);border-radius:14px;border:1px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.04);padding:15px 15px 13px;cursor:pointer;text-align:left;font-family:inherit;position:relative;overflow:hidden;transition:box-shadow .15s,border-color .15s}
+  .plancard:hover{box-shadow:0 6px 16px rgba(1,101,99,.14)}
+  .plancard.active{border-color:var(--mea-navy);box-shadow:0 6px 18px rgba(1,101,99,.18)}
+  .plancard .pcbar{position:absolute;top:0;left:0;width:5px;height:100%}
+  .plancard .pcname{font-size:12.5px;color:var(--muted);font-weight:600;min-height:34px}
+  .plancard .pcnum{display:flex;align-items:baseline;gap:6px;margin-top:8px}
+  .plancard .pcactual{font-size:26px;font-weight:800;color:var(--ink)}
+  .plancard .pctarget{font-size:12.5px;color:var(--muted)}
+  .plancard .pcchip{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;color:#fff;margin-left:auto}
+  .plancard .pctrack{height:8px;border-radius:6px;background:#e3f2f0;margin-top:10px;overflow:hidden;position:relative}
+  .plancard .pcfill{height:100%;border-radius:6px}
+  .plancard .pctick{position:absolute;top:-2px;width:2px;height:12px;background:var(--mea-gold-d)}
+  .plancard .pcmeta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px}
+  .plancard:focus-visible{outline:2px solid var(--mea-navy);outline-offset:2px}
+  @media(max-width:980px){.plancards{grid-template-columns:repeat(2,1fr)}}
   .marquee{position:relative;margin-top:10px;height:30px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 32px,#000 calc(100% - 32px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 32px,#000 calc(100% - 32px),transparent 100%)}
   .marquee-track{position:absolute;top:0;left:0;display:flex;align-items:center;height:100%;white-space:nowrap;animation:marquee-scroll 32s linear infinite}
   .marquee:hover .marquee-track{animation-play-state:paused}
@@ -124,8 +133,6 @@
     header{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(120deg,var(--mea-navy),var(--mea-navy-d))}
     .asof select{-webkit-backdrop-filter:none;backdrop-filter:none;background:#fff;border-color:#cdeae5}
     .mclose{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(255,255,255,.28)}
-    .tabbar{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(255,255,255,.92)}
-    .tabbtn{color:var(--mea-navy-d)}
   }
   @media (prefers-reduced-motion: reduce){
     *{transition:none!important;animation:none!important}
@@ -177,7 +184,6 @@
       <div id="updated" style="font-size:11px"></div>
     </div>
   </div>
-  <div class="tabbar" id="kpis" role="tablist" aria-label="เลือกขั้นตอน"></div>
   <div class="marquee" aria-label="สถานะรายกิจกรรม">
     <div class="marquee-track" id="marqueeTrack"></div>
   </div>
@@ -227,6 +233,7 @@ function startPulse(){
 }
 
 const APP_HTML=`
+  <div class="plancards" id="kpis" role="tablist" aria-label="เลือกกิจกรรม"></div>
   <div class="grid2">
     <div class="panel">
       <h2><span class="dot"></span>เป้าหมายสะสม vs ผลการดำเนินงานจริงสะสม (รายเดือน)</h2>
@@ -298,14 +305,19 @@ function renderKpis(){
   const box=document.getElementById('kpis');if(!box)return;box.innerHTML='';
   Object.entries(DATA.plans).forEach(([k,p])=>{
     const tgt=planCumTarget(p,curMonth),act=planCumActual(p,curMonth),st=statusOf(tgt,act);
-    const btn=document.createElement('button');
-    btn.type='button';btn.role='tab';
-    btn.className='tabbtn'+(k===curPlan?' active':'');
-    btn.setAttribute('aria-selected',k===curPlan?'true':'false');
-    btn.title=`${p.full||p.name} — ผลจริง ${act}% / เป้า ${tgt}% (${stTH(st)})`;
-    btn.innerHTML=`<span class="tdot" style="background:${C[st]}"></span>${p.name}<span class="tpct">${act}%</span>`;
-    btn.onclick=()=>{curPlan=k;renderAll();};
-    box.appendChild(btn);
+    const card=document.createElement('button');
+    card.type='button';card.role='tab';
+    card.className='plancard'+(k===curPlan?' active':'');
+    card.setAttribute('aria-selected',k===curPlan?'true':'false');
+    card.innerHTML=`<div class="pcbar" style="background:${C[st]}"></div>
+      <div class="pcname">${p.full||p.name}</div>
+      <div class="pcnum"><span class="pcactual">${act}%</span><span class="pctarget">/ เป้า ${tgt}%</span>
+        <span class="pcchip" style="background:${C[st]}">${stTH(st)}</span></div>
+      <div class="pctrack"><div class="pcfill" style="width:${Math.min(act,100)}%;background:${C[st]}"></div>
+        <div class="pctick" style="left:${Math.min(tgt,100)}%"></div></div>
+      <div class="pcmeta"><span>${p.acts.length} กิจกรรม</span><span>${p.name}</span></div>`;
+    card.onclick=()=>{curPlan=k;renderAll();};
+    box.appendChild(card);
   });
 }
 function renderTrend(){
