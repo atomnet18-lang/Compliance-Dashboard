@@ -34,6 +34,20 @@
   .tabbtn .tdot{width:8px;height:8px;border-radius:50%;flex:none}
   .tabbtn .tpct{font-weight:800}
   .tabbtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  .marquee{position:relative;margin-top:10px;height:30px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 32px,#000 calc(100% - 32px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 32px,#000 calc(100% - 32px),transparent 100%)}
+  .marquee-track{position:absolute;top:0;left:0;display:flex;align-items:center;height:100%;white-space:nowrap;animation:marquee-scroll 32s linear infinite}
+  .marquee:hover .marquee-track{animation-play-state:paused}
+  .mq-group{display:flex;align-items:center;flex:none}
+  .mq-item{display:inline-flex;align-items:center;gap:6px;padding:0 10px;font-size:12px;font-weight:600;color:#eafaf7;white-space:nowrap}
+  .mq-item b{font-weight:800}
+  .mq-dot{width:7px;height:7px;border-radius:50%;flex:none}
+  .mq-sep{color:rgba(255,255,255,.35);padding:0 8px}
+  @keyframes marquee-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion: reduce){
+    .marquee{overflow-x:auto}
+    .marquee-track{animation:none!important;position:static}
+    .marquee-track .mq-group[aria-hidden="true"]{display:none}
+  }
   .chip{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;color:#fff}
   .grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;margin-bottom:18px}
   .panel{background:var(--card);border-radius:14px;border:1px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.04);padding:18px}
@@ -164,6 +178,9 @@
     </div>
   </div>
   <div class="tabbar" id="kpis" role="tablist" aria-label="เลือกขั้นตอน"></div>
+  <div class="marquee" aria-label="สถานะรายกิจกรรม">
+    <div class="marquee-track" id="marqueeTrack"></div>
+  </div>
 </header>
 
 <div class="wrap" id="app">
@@ -261,6 +278,21 @@ function planCumActual(p,mi){
   return tw?+(v/tw*100).toFixed(1):0;
 }
 const stTH=st=>st==='ok'?'ตามแผน':st==='warn'?'ใกล้เป้า':st==='bad'?'ต่ำกว่าเป้า':'รอกำหนด';
+const stBin=st=>(st==='warn'||st==='bad')?'ไม่เป็นไปตามแผน':'เป็นไปตามแผน';
+const truncName=(s,n)=>(s&&s.length>n)?s.slice(0,n)+'…':(s||'');
+function renderMarquee(){
+  const track=document.getElementById('marqueeTrack');if(!track||!DATA)return;
+  const items=[];
+  Object.values(DATA.plans).forEach(p=>{
+    p.acts.forEach(a=>{
+      const t=a.t[curMonth],av=actualAt(a,curMonth),st=statusOf(t,av);
+      items.push({id:a.id,name:truncName(a.name,26),st,label:stBin(st)});
+    });
+  });
+  const groupHTML=items.map(it=>`<span class="mq-item"><i class="mq-dot" style="background:${C[it.st]}"></i>${it.id} ${it.name} · <b>${it.label}</b></span><span class="mq-sep">•</span>`).join('');
+  track.innerHTML=`<div class="mq-group">${groupHTML}</div><div class="mq-group" aria-hidden="true">${groupHTML}</div>`;
+  track.style.animationDuration=Math.max(18,items.length*2.4)+'s';
+}
 
 function renderKpis(){
   const box=document.getElementById('kpis');if(!box)return;box.innerHTML='';
@@ -356,7 +388,7 @@ function openModal(planKey,aid){
   m.classList.add('show');
 }
 function closeModal(){document.getElementById('modal').classList.remove('show');}
-function renderAll(){renderKpis();renderTrend();renderCompare();renderTable();}
+function renderAll(){renderKpis();renderTrend();renderCompare();renderTable();renderMarquee();}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 function setTheme(dark){
